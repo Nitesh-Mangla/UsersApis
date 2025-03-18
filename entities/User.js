@@ -2,7 +2,7 @@ const { EntitySchema } = require("typeorm");
 
 const User = new EntitySchema({
     name: "User",
-    tableName: "users_details",
+    tableName: "users",
     columns: {
         id: {
             primary: true,

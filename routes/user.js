@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 app.use(cors());
 
 router.get('/users', userAuth, async (req, res) => {
-    let {page = 1, limit = 15, email = '', first_name = '', last_name = ''} = req.query;
+    let {page = 1, limit = 15, email = '', first_name = '', last_name = '', order_by = 'DESC'} = req.query;
     page = parseInt(page);
     limit = parseInt(limit);
     const filterOptions = {};
@@ -30,12 +30,13 @@ router.get('/users', userAuth, async (req, res) => {
     }
     let users = [];
     if (filterOptions) {
-        users = await userRepository.find({where: filterOptions});
+        users = await userRepository.find({where: filterOptions, order: {id: order_by}});
     } else {
-        users = await userRepository.find();
+        users = await userRepository.find({order: {id: order_by}});
     }
 
     const total = users.length;
+    console.log(users)
     if (total === 0) {
         return res.status(200).json({status: 200, message: "No users found", data: []})
     }

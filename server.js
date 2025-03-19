@@ -4,11 +4,14 @@ const cors = require("cors");
 const { AppDataSource } = require("./data-source");
 const { userRepository } = require("./repositories/userRepository");
 const userRoutes = require('./routes/user');
+const { swaggerSpec, swaggerUi } =  require('./swagger')
+require('dotenv').config();
 
 const app = express();
 app.use(cors());
 app.use('/', userRoutes);
 app.use(bodyParser.json());
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 AppDataSource.initialize()
     .then(() => {
@@ -19,6 +22,6 @@ AppDataSource.initialize()
     })
     .catch((error) => console.error("Error initializing database", error));
 
-app.listen(3000, () => {
-    console.log("Server running on http://localhost:3000");
+app.listen(process.env.PORT, () => {
+    console.log(`Server running on http://localhost:${process.env.PORT}`);
 });

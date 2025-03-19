@@ -35,20 +35,10 @@ app.use(cors());
  *           type: integer
  *         description: Number of results per page
  *       - in: query
- *         name: email
+ *         name: search_key
  *         schema:
  *           type: string
- *         description: Filter by email
- *       - in: query
- *         name: first_name
- *         schema:
- *           type: string
- *         description: Filter by first name
- *       - in: query
- *         name: last_name
- *         schema:
- *           type: string
- *         description: Filter by last name
+ *         description: Filter by email, first and last name
  *     responses:
  *       200:
  *         description: Successful response with user list
@@ -60,30 +50,24 @@ router.get('/users', userAuth, async (req, res) => {
         let {
             page = 1,
             limit = 15,
-            email = '',
-            first_name = '',
-            last_name = '',
-            order_by = 'DESC'
+            search_key = ''
         } = req.query;
         page = parseInt(page);
         limit = parseInt(limit);
-        const filterOptions = {};
-        if (email) {
-            filterOptions['email'] = ILike(`%${email}%`);
+        let filterOptions = [];
+        if(search_key){
+            filterOptions = [
+                {first_name: ILike(`%${search_key}%`)},
+                {last_name: ILike(`%${search_key}%`)},
+                {email: ILike(`%${search_key}%`)},
+            ]
         }
 
-        if (first_name) {
-            filterOptions['first_name'] = ILike(`%${first_name}%`);
-        }
-
-        if (last_name) {
-            filterOptions['last_name'] = ILike(`${last_name}`);
-        }
         let users = [];
         if (filterOptions) {
-            users = await userRepository.find({where: filterOptions, order: {id: order_by}});
+            users = await userRepository.find({where: filterOptions, order: {id: 'DESC'}});
         } else {
-            users = await userRepository.find({order: {id: order_by}});
+            users = await userRepository.find({order: {id: 'DESC'}});
         }
 
         const total = users.length;
